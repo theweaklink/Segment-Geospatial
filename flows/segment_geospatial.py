@@ -41,16 +41,15 @@ def run():
     """## Segment the image"""
     onecode.Logger.info("Segmenting the image...")
     mask_tiff = onecode.file_output('Mask Tiff', "mask.tif")
-    mask_shp = onecode.file_output('Mask Shp', "shp/mask.shp", make_path=True)
     sam.generate(tiff_image, output=mask_tiff, foreground=True)
-
-    shp_dir = os.path.dirname(mask_shp)
-    for f in os.listdir(shp_dir):
-        onecode.file_output("Mask Shp", os.path.join(shp_dir, f))
 
     """## Convert raster to vector"""
     onecode.Logger.info("Converting raster to vector...")
+    mask_shp = onecode.file_output('Mask Shp', "shp/mask.shp", make_path=True)
     raster_to_vector(mask_tiff, output=mask_shp)
+    shp_dir = os.path.dirname(mask_shp)
+    for f in os.listdir(shp_dir):
+        onecode.file_output(f"Mask Shp [{f}]", os.path.join(shp_dir, f))
 
     """Display the annotations (each mask with a random color)."""
     onecode.Logger.info("Segmenting the image...")
@@ -75,6 +74,8 @@ def run():
     onecode.Logger.info("Exporting interactive map...")
     m = leafmap.Map(height="600px")
     m.add_basemap("SATELLITE")
+    m.add_raster(tiff_image, layer_name="Image")
+    m.add_raster(annotation_tiff, alpha=0.5, layer_name="Masks")
     m.add_vector(mask_shp, layer_name="Vector", info_mode=None)
     m.add_layer_manager()
     m.to_html(
