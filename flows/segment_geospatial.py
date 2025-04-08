@@ -1,3 +1,4 @@
+import os
 import onecode
 import leafmap
 import matplotlib.pyplot as plt
@@ -9,7 +10,7 @@ def run():
 
     tiff_image = onecode.file_input(
         'Satellite Image',
-        'rasters/Derna_sample.tif',
+        'rasters/buildings/Derna_sample.tif',
         types=[
             ('TIFF', '.tiff'),
             ('TIF', '.tif'),
@@ -40,8 +41,12 @@ def run():
     """## Segment the image"""
     onecode.Logger.info("Segmenting the image...")
     mask_tiff = onecode.file_output('Mask Tiff', "mask.tif")
-    mask_shp = onecode.file_output('Mask Shp', "mask.shp")
+    mask_shp = onecode.file_output('Mask Shp', "shp/mask.shp", make_path=True)
     sam.generate(tiff_image, output=mask_tiff, foreground=True)
+
+    shp_dir = os.path.dirname(mask_shp)
+    for f in os.listdir(shp_dir):
+        onecode.file_output("Mask Shp", os.path.join(shp_dir, f))
 
     """## Convert raster to vector"""
     onecode.Logger.info("Converting raster to vector...")
@@ -71,6 +76,7 @@ def run():
     m = leafmap.Map(height="600px")
     m.add_basemap("SATELLITE")
     m.add_vector(mask_shp, layer_name="Vector", info_mode=None)
+    m.add_layer_manager()
     m.to_html(
         onecode.file_output(
             'interactive_map',
