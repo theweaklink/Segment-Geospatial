@@ -25,6 +25,7 @@ def run():
     """
     onecode.Logger.info("Initialize SAM class...")
     sam_kwargs = {
+        "min_mask_region_area": onecode.slider("Min/Max Region Area", 100, min=1, max=3000*3000, step=1),
         "points_per_side": onecode.number_input('Points per Side', 32, min=1),
         "pred_iou_thresh": onecode.slider('IOU threshold (prediction)', 0.86, min=0., max=1., step=0.01),
         "stability_score_thresh": onecode.slider('Stability score threshold', 0.92, min=0., max=1., step=0.01),
